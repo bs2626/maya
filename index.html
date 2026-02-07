@@ -24,6 +24,15 @@
         .shake {
             animation: shake 0.3s ease-in-out;
         }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffd700; }
+            50% { box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffd700; }
+        }
+        
+        .treasure-btn {
+            animation: glow 2s infinite;
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center p-4 text-center">
@@ -48,6 +57,35 @@
         </div>
     </div>
 
+    <!-- Treasure Hunt Modal -->
+    <div id="treasure-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white/90 p-8 rounded-3xl backdrop-blur-md shadow-2xl max-w-md w-full">
+            <h2 class="text-2xl font-bold text-pink-600 mb-4">🔐 Secret Treasure Unlock 🔐</h2>
+            <p class="text-gray-700 mb-6">Answer these questions to unlock your special surprise!</p>
+            
+            <div class="mb-4">
+                <label class="block text-left text-gray-700 font-semibold mb-2">What date did we first meet? (just the number)</label>
+                <input type="text" id="answer1" class="w-full p-3 border-2 border-pink-300 rounded-lg focus:border-pink-500 outline-none" placeholder="Enter date...">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-left text-gray-700 font-semibold mb-2">What day of the week did we first meet?</label>
+                <input type="text" id="answer2" class="w-full p-3 border-2 border-pink-300 rounded-lg focus:border-pink-500 outline-none" placeholder="Enter day...">
+            </div>
+            
+            <div id="error-message" class="hidden text-red-500 mb-4 font-semibold"></div>
+            
+            <div class="flex gap-4">
+                <button id="submit-treasure" class="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-full">
+                    Unlock 🗝️
+                </button>
+                <button id="close-modal" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-full">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const yesBtn = document.getElementById('yes-btn');
         const noBtn = document.getElementById('no-btn');
@@ -55,6 +93,10 @@
         const displayImage = document.getElementById('display-image');
         const mainText = document.getElementById('main-text');
         const music = document.getElementById('valentine-music');
+        const treasureModal = document.getElementById('treasure-modal');
+        const submitTreasure = document.getElementById('submit-treasure');
+        const closeModal = document.getElementById('close-modal');
+        const errorMessage = document.getElementById('error-message');
 
         let clickCount = 0;
         const noTexts = [
@@ -91,32 +133,25 @@
         noBtn.addEventListener('click', () => {
             clickCount++;
             
-            // Shake the container
             container.classList.add('shake');
             setTimeout(() => container.classList.remove('shake'), 300);
             
-            // Make YES button bigger
             const newSize = 1 + (clickCount * 0.5);
             yesBtn.style.transform = `scale(${newSize})`;
             
-            // Change text
             noBtn.innerText = noTexts[Math.min(clickCount, noTexts.length - 1)];
             
-            // Change panda image to sadder ones
             if(clickCount >= 3 && clickCount <= 5) {
                 displayImage.src = sadPandaImages[Math.min(clickCount - 3, sadPandaImages.length - 1)];
             }
             
-            // Make NO button smaller and smaller
             const noSize = Math.max(0.5, 1 - (clickCount * 0.1));
             noBtn.style.transform = `scale(${noSize})`;
             
-            // Change background to sadder colors
             if(clickCount >= 5) {
                 document.body.style.backgroundColor = '#fecaca';
             }
             
-            // Update main text to be more dramatic
             if(clickCount === 7) {
                 mainText.innerHTML = "Please... my Mayalu? 🥺💔";
             }
@@ -125,17 +160,14 @@
                 noBtn.style.opacity = '0.3';
             }
             
-            // After 3 clicks, button runs away on hover
             if(clickCount >= 3) {
                 noBtn.style.position = 'fixed';
             }
         });
 
         yesBtn.addEventListener('click', () => {
-            // Play Music
             music.play();
 
-            // Multiple confetti bursts
             const duration = 3000;
             const animationEnd = Date.now() + duration;
             const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -166,17 +198,47 @@
                 });
             }, 250);
 
-            // Success message
             container.innerHTML = `
                 <img src="./IMG_9667.jpg" alt="Success" class="w-64 h-auto mb-6 mx-auto rounded-2xl shadow-2xl border-4 border-pink-200">
                 <h1 class="text-4xl font-bold text-pink-600 animate-pulse">Yayyyyyyyyyyy! 🎉</h1>
-                <p class="text-lg mt-4 text-gray-600">I love you my mayalu ❤️ I am so excited to see you on 14th. I can not wait for us to be together ! !</p>
+                <p class="text-lg mt-4 text-gray-600">I love you my mayalu ❤️ I am so excited to see you on 14th. I can not wait for us to be together!</p>
                 <div class="mt-6 text-pink-400 animate-bounce">♫ Listening to My Heart Will Go On...</div>
-                <p class="text-lg text-gray-700 leading-relaxed">
-            To my favorite person, my kanchuu, <br><br>
-          The stars aligned and the universe came together to make us meet. We found each other, when we were not looking. In a world of billions, somehow our paths crossed at exactly the right moment, as if destiny itself had been waiting for this. Every moment before you feels like it was leading me to you, and every moment since has been brighter because you're in it. You walked into my life and suddenly everything made sense all the waiting, all the searching, it was all worth it to find you, my Mayalu. You are my unexpected blessing, my favorite coincidence, the answer to prayers I didn't even know I was making. With you, I've found not just love, but home. You are my safe place, my laughter in the dark, my reason to believe in magic. I don't know what I did to deserve you, but I promise to spend every day showing you how grateful I am that the universe chose to bring us together. You are my greatest adventure, my sweetest dream come true, and I can't imagine my life without you in it. I love you more than words could ever express, mero Suprina. 💖! I miss you mero mutu and I can't wait to see you.
-        </p>
+                <p class="text-lg text-gray-700 leading-relaxed mt-4">
+                    To my favorite person, my kanchuu, <br><br>
+                    The stars aligned and the universe came together to make us meet. We found each other, when we were not looking. In a world of billions, somehow our paths crossed at exactly the right moment, as if destiny itself had been waiting for this. Every moment before you feels like it was leading me to you, and every moment since has been brighter because you're in it. You walked into my life and suddenly everything made sense all the waiting, all the searching, it was all worth it to find you, my Mayalu. You are my unexpected blessing, my favorite coincidence, the answer to prayers I didn't even know I was making. With you, I've found not just love, but home. You are my safe place, my laughter in the dark, my reason to believe in magic. I don't know what I did to deserve you, but I promise to spend every day showing you how grateful I am that the universe chose to bring us together. You are my greatest adventure, my sweetest dream come true, and I can't imagine my life without you in it. I love you more than words could ever express, mero Suprina. 💖! I miss you mero mutu and I can't wait to see you.
+                </p>
+                <div class="mt-8">
+                    <button id="treasure-btn" class="treasure-btn bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-bold py-4 px-8 rounded-full text-xl">
+                        🎁 Find Your Secret Treasure 🎁
+                    </button>
+                </div>
             `;
+
+            setTimeout(() => {
+                document.getElementById('treasure-btn').addEventListener('click', () => {
+                    treasureModal.classList.remove('hidden');
+                });
+            }, 100);
+        });
+
+        closeModal.addEventListener('click', () => {
+            treasureModal.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+        });
+
+        submitTreasure.addEventListener('click', () => {
+            const answer1 = document.getElementById('answer1').value.trim();
+            const answer2 = document.getElementById('answer2').value.trim().toLowerCase();
+
+            if (answer1 === '27' && answer2 === 'saturday') {
+                window.location.href = 'treasure.html';
+            } else {
+                errorMessage.textContent = "Oops! 🚫 This treasure is only for someone VERY special who knows our story! Try again, my love 💕";
+                errorMessage.classList.remove('hidden');
+                
+                document.getElementById('answer1').value = '';
+                document.getElementById('answer2').value = '';
+            }
         });
     </script>
 </body>
